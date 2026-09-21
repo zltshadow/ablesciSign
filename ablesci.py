@@ -21,7 +21,8 @@ import json
 import datetime
 from pathlib import Path
 from datetime import timezone, timedelta
-
+import random
+import time
 
 try:
     from zoneinfo import ZoneInfo
@@ -484,4 +485,13 @@ def main():
         print(f"::set-output name=log_content::{global_notifier.get_content()}")
 
 if __name__ == "__main__":
+    # 每天 09:00-09:10 之间随机开始签到
+    delay = random.randint(0, 120)
+
+    minutes = delay // 60
+    seconds = delay % 60
+
+    print(f"⏰ 随机延迟 {minutes} 分 {seconds} 秒后开始签到...")
+    time.sleep(delay)
+
     main()
