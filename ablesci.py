@@ -214,9 +214,21 @@ class AbleSciAuto:
             response = self.session.get(login_url, headers=self.headers, timeout=30)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
+                # 新版科研通：优先从 meta 标签获取 CSRF
+                csrf_meta = soup.find('meta', {'name': 'csrf-token'})
+                if csrf_meta:
+                    token = csrf_meta.get('content', '').strip()
+                    if token:
+                        return token
+                
+                # 兼容旧版科研通
                 csrf_token = soup.find('input', {'name': '_csrf'})
                 if csrf_token:
-                    return csrf_token.get('value', '')
+                    token = csrf_token.get('value', '').strip()
+                    if token:
+                        return token
+                
+                self.log("登录页中未找到CSRF令牌", "error")
             else:
                 self.log(f"获取CSRF令牌失败，状态码: {response.status_code}", "error")
         except Exception as e:
